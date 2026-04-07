@@ -1,0 +1,70 @@
+x-app-base: &app-base
+  restart: unless-stopped
+  networks:
+    - portfolio-net
+  env_file:
+    - .env
+  platform: linux/amd64
+
+x-db-env: &db-env
+  DB_HOST: db
+  DB_PORT: 5432
+  DB_NAME: ingest
+  DB_USER: ingest
+  DB_PASSWORD: ingest1!
+
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: portfolio-db
+    networks:
+      - portfolio-net
+    ports:
+      - "5434:5432"
+    environment:
+      POSTGRES_DB: ingest 
+      POSTGRES_USER: ingest
+      POSTGRES_PASSWORD: ingest1!
+    volumes:
+      - portfolio_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ingest -d ingest"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  receiver:
+    <<: *app-base
+    build:
+      context: ./receiver
+    container_name: portfolio-receiver
+    volumes:
+      - ./receiver/app:/app/app
+    ports:
+      - 8080:8000
+    environment:
+      <<: *db-env
+      APP_NAME: receiver
+    depends_on:
+      db:
+        condition: service_healthy
+  
+  sender:
+    <<: *app-base
+    build:
+      context: ./sender
+    container_name: portfolio-sender
+    volumes:
+      - ./sender/app:/app/app
+    ports:
+      - "3000:3000"
+    environment:
+      RECEIVER_BASE_URL: http://receiver:8000
+    depends_on:
+      - receiver
+
+volumes:
+  portfolio_data:
+
+networks:
+  portfolio-net:
