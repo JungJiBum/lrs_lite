@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # LRS Portfolio Project
 
 ## 1. Overview
@@ -91,3 +92,7 @@ portfolio/
 * 초기 단계에서는 단순성을 유지한다.
 * 과도한 분리(MSA)는 지양한다.
 * 데이터 흐름 안정화 이후 구조 확장한다.
+=======
+# lrs_lite
+LRS lite version
+>>>>>>> origin/main
