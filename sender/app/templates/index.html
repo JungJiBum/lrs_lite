@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>xAPI Sender</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  </head>
+  <body>
+    <main>
+      <h1>xAPI Sender</h1>
+      <p>더미 xAPI 데이터를 만들고 Receiver의 <code>/statements</code>로 전송합니다.</p>
+
+      <div class="toolbar">
+        <button type="button" id="generateButton">더미데이터 생성</button>
+        <button type="button" id="sendButton" class="secondary" disabled>전송</button>
+      </div>
+
+      <label for="preview">미리보기</label>
+      <textarea id="preview" spellcheck="false" placeholder="더미데이터 생성 버튼을 누르면 xAPI JSON이 표시됩니다."></textarea>
+      <div id="status" class="status" aria-live="polite"></div>
+    </main>
+
+    <script src="{{ url_for('static', filename='app.js') }}"></script>
+  </body>
+</html>

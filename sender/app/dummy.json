@@ -1,0 +1,120 @@
+{
+  "activityType": "http://adlnet.gov/expapi/activities/cmi.interaction",
+  "sessionCount": 3,
+  "score": {
+    "min": 0,
+    "max": 100,
+    "minGenerated": 45,
+    "maxGenerated": 100,
+    "passingScore": 60
+  },
+  "responses": ["A", "B", "C", "D"],
+  "actors": [
+    {
+      "objectType": "Agent",
+      "name": "김민준",
+      "mbox": "mailto:minjun.kim@example.com"
+    },
+    {
+      "objectType": "Agent",
+      "name": "이서연",
+      "mbox": "mailto:seoyeon.lee@example.com"
+    },
+    {
+      "objectType": "Agent",
+      "name": "박지호",
+      "mbox": "mailto:jiho.park@example.com"
+    },
+    {
+      "objectType": "Agent",
+      "name": "최하은",
+      "mbox": "mailto:haeun.choi@example.com"
+    },
+    {
+      "objectType": "Agent",
+      "name": "정도윤",
+      "mbox": "mailto:doyun.jung@example.com"
+    }
+  ],
+  "verbs": [
+    {
+      "id": "http://adlnet.gov/expapi/verbs/initialized",
+      "display": {
+        "en-US": "initialized",
+        "ko-KR": "시작했다"
+      },
+      "includeResult": false
+    },
+    {
+      "id": "http://adlnet.gov/expapi/verbs/experienced",
+      "display": {
+        "en-US": "experienced",
+        "ko-KR": "학습했다"
+      },
+      "includeResult": false
+    },
+    {
+      "id": "http://adlnet.gov/expapi/verbs/answered",
+      "display": {
+        "en-US": "answered",
+        "ko-KR": "응답했다"
+      },
+      "includeResult": true,
+      "completion": false
+    },
+    {
+      "id": "http://adlnet.gov/expapi/verbs/completed",
+      "display": {
+        "en-US": "completed",
+        "ko-KR": "완료했다"
+      },
+      "includeResult": true,
+      "completion": true
+    },
+    {
+      "id": "http://adlnet.gov/expapi/verbs/passed",
+      "display": {
+        "en-US": "passed",
+        "ko-KR": "통과했다"
+      },
+      "includeResult": true,
+      "completion": true
+    },
+    {
+      "id": "http://adlnet.gov/expapi/verbs/failed",
+      "display": {
+        "en-US": "failed",
+        "ko-KR": "실패했다"
+      },
+      "includeResult": true,
+      "completion": true,
+      "marksFailure": true
+    }
+  ],
+  "objects": [
+    {
+      "id": "https://portfolio.local/quiz/math",
+      "name": "수학퀴즈",
+      "description": "분수, 방정식, 도형 감각을 확인하는 퀴즈",
+      "questionCount": 10
+    },
+    {
+      "id": "https://portfolio.local/quiz/english",
+      "name": "영어퀴즈",
+      "description": "어휘, 문법, 독해 흐름을 확인하는 퀴즈",
+      "questionCount": 10
+    },
+    {
+      "id": "https://portfolio.local/quiz/science",
+      "name": "과학퀴즈",
+      "description": "물질, 생명, 지구과학 개념을 확인하는 퀴즈",
+      "questionCount": 10
+    },
+    {
+      "id": "https://portfolio.local/quiz/korean",
+      "name": "국어퀴즈",
+      "description": "독해, 어휘, 문학 감상을 확인하는 퀴즈",
+      "questionCount": 10
+    }
+  ]
+}

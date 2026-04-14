@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>LRS Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  </head>
+  <body>
+    <main>
+      <header>
+        <div>
+          <p class="eyebrow">Receiver Statements</p>
+          <h1>적재된 xAPI 목록</h1>
+        </div>
+        <a href="/">새로고침</a>
+      </header>
+
+      {% if error %}
+        <p class="error">Receiver 연결 실패: {{ error }}</p>
+      {% endif %}
+
+      {% if statements %}
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Actor</th>
+              <th>Verb</th>
+              <th>Object</th>
+              <th>Received</th>
+              <th>Raw</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for statement in statements %}
+              {% set payload = statement.payload %}
+              <tr>
+                <td>{{ statement.id }}</td>
+                <td>{{ payload.actor.name }}</td>
+                <td>{{ payload.verb.display["ko-KR"] }}</td>
+                <td>{{ payload.object.definition.name["ko-KR"] }}</td>
+                <td>{{ statement.receivedAt }}</td>
+                <td>
+                  <button type="button" class="raw-button" data-raw-id="raw-{{ statement.id }}">원본보기</button>
+                  <script type="application/json" id="raw-{{ statement.id }}">{{ payload | tojson }}</script>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      {% else %}
+        <p class="empty">아직 적재된 statement가 없습니다.</p>
+      {% endif %}
+    </main>
+
+    <dialog id="rawDialog">
+      <div class="dialog-header">
+        <h2>적재 원본</h2>
+        <button type="button" class="close-button" id="closeRawDialog">닫기</button>
+      </div>
+      <pre id="rawPreview"></pre>
+    </dialog>
+
+    <script src="{{ url_for('static', filename='app.js') }}"></script>
+  </body>
+</html>

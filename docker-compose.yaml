@@ -63,6 +63,20 @@ services:
     depends_on:
       - receiver
 
+  dashboard:
+    <<: *app-base
+    build:
+      context: ./dashboard
+    container_name: portfolio-dashboard
+    volumes:
+      - ./dashboard/app:/app/app
+    ports:
+      - "3001:3001"
+    environment:
+      RECEIVER_API_URL: http://receiver:8000
+    depends_on:
+      - receiver
+
 volumes:
   portfolio_data:
 
