@@ -1,5 +1,3 @@
-import json
-
 from fastapi import FastAPI, HTTPException
 
 from app.db import check_db_connection, init_db, list_statements, save_statement
@@ -29,11 +27,6 @@ def health():
 
 @app.post("/statements")
 def create_statement(payload: dict):
-    print(
-        f"received xAPI statement: {json.dumps(payload, ensure_ascii=False)}",
-        flush=True,
-    )
-
     try:
         saved = save_statement(payload)
     except Exception as exc:

@@ -2,16 +2,14 @@ x-app-base: &app-base
   restart: unless-stopped
   networks:
     - portfolio-net
-  env_file:
-    - .env
   platform: linux/amd64
 
 x-db-env: &db-env
   DB_HOST: db
   DB_PORT: 5432
-  DB_NAME: ingest
-  DB_USER: ingest
-  DB_PASSWORD: ingest1!
+  POSTGRES_DB: ${POSTGRES_DB}
+  POSTGRES_USER: ${POSTGRES_USER}
+  POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
 
 services:
   db:
@@ -22,13 +20,13 @@ services:
     ports:
       - "5434:5432"
     environment:
-      POSTGRES_DB: ingest 
-      POSTGRES_USER: ingest
-      POSTGRES_PASSWORD: ingest1!
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     volumes:
       - portfolio_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ingest -d ingest"]
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
       interval: 10s
       timeout: 5s
       retries: 5

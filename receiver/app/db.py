@@ -8,9 +8,9 @@ def get_db_config():
     return {
         "host": os.getenv("DB_HOST", "localhost"),
         "port": int(os.getenv("DB_PORT", "5432")),
-        "dbname": os.getenv("DB_NAME", "ingest"),
-        "user": os.getenv("DB_USER", "ingest"),
-        "password": os.getenv("DB_PASSWORD", "ingest1!"),
+        "dbname": os.environ["POSTGRES_DB"],
+        "user": os.environ["POSTGRES_USER"],
+        "password": os.environ["POSTGRES_PASSWORD"],
     }
 
 
