@@ -38,6 +38,7 @@ services:
     container_name: portfolio-receiver
     volumes:
       - ./receiver/app:/app/app
+      - ./receiver/migrations:/app/migrations:ro
     ports:
       - 8080:8000
     environment:

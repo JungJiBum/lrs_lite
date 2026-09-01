@@ -1,7 +1,12 @@
 import os
+from pathlib import Path
 
 import psycopg
 from psycopg.types.json import Jsonb
+
+from app.errors import StatementConflictError
+
+MIGRATIONS_DIR = Path(__file__).resolve().parent.parent / "migrations"
 
 
 def get_db_config():
@@ -56,16 +61,32 @@ def init_db():
             )
             cur.execute(
                 """
-                CREATE INDEX IF NOT EXISTS idx_statements_statement_id
-                ON statements (statement_id)
-                """
-            )
-            cur.execute(
-                """
                 CREATE INDEX IF NOT EXISTS idx_statements_received_at
                 ON statements (received_at)
                 """
             )
+            cur.execute(
+                """
+                CREATE TABLE IF NOT EXISTS schema_migrations (
+                    version TEXT PRIMARY KEY,
+                    applied_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+                )
+                """
+            )
+
+            for migration_path in sorted(MIGRATIONS_DIR.glob("*.sql")):
+                cur.execute(
+                    "SELECT 1 FROM schema_migrations WHERE version = %s",
+                    (migration_path.name,),
+                )
+                if cur.fetchone() is not None:
+                    continue
+
+                cur.execute(migration_path.read_text(encoding="utf-8"))
+                cur.execute(
+                    "INSERT INTO schema_migrations (version) VALUES (%s)",
+                    (migration_path.name,),
+                )
 
 
 def save_statement(payload):
@@ -73,20 +94,44 @@ def save_statement(payload):
 
     with psycopg.connect(**config) as conn:
         with conn.cursor() as cur:
+            statement_id = payload["id"]
             cur.execute(
                 """
                 INSERT INTO statements (statement_id, payload)
                 VALUES (%s, %s)
+                ON CONFLICT (statement_id) DO NOTHING
                 RETURNING id, statement_id, received_at
                 """,
-                (payload.get("id"), Jsonb(payload)),
+                (statement_id, Jsonb(payload)),
             )
             row = cur.fetchone()
 
+            if row is None:
+                cur.execute(
+                    """
+                    SELECT id, statement_id, payload, received_at
+                    FROM statements
+                    WHERE statement_id = %s
+                    FOR KEY SHARE
+                    """,
+                    (statement_id,),
+                )
+                row = cur.fetchone()
+                if row[2] != payload:
+                    raise StatementConflictError(
+                        f"statement id {statement_id} already exists with different content"
+                    )
+                created = False
+                received_at = row[3]
+            else:
+                created = True
+                received_at = row[2]
+
     return {
         "id": row[0],
-        "statementId": row[1],
-        "receivedAt": row[2].isoformat(),
+        "statementId": str(row[1]),
+        "receivedAt": received_at.isoformat(),
+        "created": created,
     }
 
 
@@ -109,7 +154,7 @@ def list_statements(limit=50):
     return [
         {
             "id": row[0],
-            "statementId": row[1],
+            "statementId": str(row[1]),
             "payload": row[2],
             "receivedAt": row[3].isoformat(),
         }
