@@ -1,13 +1,22 @@
-from fastapi import FastAPI, HTTPException
+import logging
+from contextlib import asynccontextmanager
+
+from fastapi import FastAPI, HTTPException, status
 
 from app.db import check_db_connection, init_db, list_statements, save_statement
+from app.errors import StatementConflictError
+from app.models import Statement
 
-app = FastAPI()
+logger = logging.getLogger(__name__)
 
 
-@app.on_event("startup")
-def startup():
+@asynccontextmanager
+async def lifespan(_: FastAPI):
     init_db()
+    yield
+
+
+app = FastAPI(lifespan=lifespan)
 
 
 @app.get("/")
@@ -26,14 +35,23 @@ def health():
 
 
 @app.post("/statements")
-def create_statement(payload: dict):
+def create_statement(statement: Statement):
+    payload = statement.model_dump(mode="json", by_alias=True, exclude_none=True)
+
     try:
         saved = save_statement(payload)
+    except StatementConflictError as exc:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(exc)) from exc
     except Exception as exc:
-        raise HTTPException(status_code=500, detail=f"statement 저장 실패: {exc}") from exc
+        logger.exception("statement storage failed")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="statement 저장 실패",
+        ) from exc
 
     return {
         "received": True,
+        "idempotent": not saved["created"],
         "saved": saved,
         "payload": payload,
     }
