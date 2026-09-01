@@ -75,3 +75,14 @@ def test_preserves_properties_outside_the_validated_subset(valid_statement):
     dumped = statement.model_dump(mode="json")
 
     assert dumped["authority"] == valid_statement["authority"]
+
+
+def test_serialization_can_preserve_explicit_null_without_adding_omitted_fields(valid_statement):
+    valid_statement["result"]["response"] = None
+    valid_statement["actor"].pop("objectType")
+
+    statement = Statement.model_validate(valid_statement)
+    dumped = statement.model_dump(mode="json", exclude_unset=True)
+
+    assert dumped["result"]["response"] is None
+    assert "objectType" not in dumped["actor"]

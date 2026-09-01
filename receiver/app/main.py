@@ -36,7 +36,8 @@ def health():
 
 @app.post("/statements")
 def create_statement(statement: Statement):
-    payload = statement.model_dump(mode="json", by_alias=True, exclude_none=True)
+    payload = statement.model_dump(mode="json", by_alias=True, exclude_unset=True)
+    payload["id"] = str(statement.id)
 
     try:
         saved = save_statement(payload)
