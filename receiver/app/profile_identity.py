@@ -23,6 +23,10 @@ def canonicalize_agent(agent_parameter: str) -> AgentIdentity:
     except (json.JSONDecodeError, TypeError) as exc:
         raise InvalidProfileOwner("agent must be a JSON object") from exc
 
+    return canonicalize_agent_object(agent)
+
+
+def canonicalize_agent_object(agent: object) -> AgentIdentity:
     if not isinstance(agent, dict):
         raise InvalidProfileOwner("agent must be a JSON object")
     if agent.get("objectType", "Agent") != "Agent":

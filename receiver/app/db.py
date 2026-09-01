@@ -5,6 +5,7 @@ import psycopg
 from psycopg.types.json import Jsonb
 
 from app.errors import StatementConflictError
+from app.profile_identity import canonicalize_agent_object
 
 MIGRATIONS_DIR = Path(__file__).resolve().parent.parent / "migrations"
 
@@ -91,18 +92,51 @@ def init_db():
 
 def save_statement(payload):
     config = get_db_config()
+    projection = _project_statement(payload)
 
     with psycopg.connect(**config) as conn:
         with conn.cursor() as cur:
             statement_id = payload["id"]
             cur.execute(
                 """
-                INSERT INTO statements (statement_id, payload)
-                VALUES (%s, %s)
+                INSERT INTO statements (
+                    statement_id,
+                    payload,
+                    received_at,
+                    actor_key,
+                    verb_id,
+                    activity_id,
+                    event_timestamp,
+                    score_scaled,
+                    success,
+                    completion
+                )
+                SELECT
+                    %s,
+                    %s,
+                    captured_at,
+                    %s,
+                    %s,
+                    %s,
+                    COALESCE(%s::TIMESTAMPTZ, captured_at),
+                    %s,
+                    %s,
+                    %s
+                FROM (SELECT clock_timestamp() AS captured_at) clock
                 ON CONFLICT (statement_id) DO NOTHING
                 RETURNING id, statement_id, received_at
                 """,
-                (statement_id, Jsonb(payload)),
+                (
+                    statement_id,
+                    Jsonb(payload),
+                    projection["actor_key"],
+                    projection["verb_id"],
+                    projection["activity_id"],
+                    projection["event_timestamp"],
+                    projection["score_scaled"],
+                    projection["success"],
+                    projection["completion"],
+                ),
             )
             row = cur.fetchone()
 
@@ -160,3 +194,18 @@ def list_statements(limit=50):
         }
         for row in rows
     ]
+
+
+def _project_statement(payload):
+    result = payload.get("result") or {}
+    score = result.get("score") or {}
+
+    return {
+        "actor_key": canonicalize_agent_object(payload["actor"]).owner_key,
+        "verb_id": payload["verb"]["id"],
+        "activity_id": payload["object"]["id"],
+        "event_timestamp": payload.get("timestamp"),
+        "score_scaled": score.get("scaled"),
+        "success": result.get("success"),
+        "completion": result.get("completion"),
+    }
