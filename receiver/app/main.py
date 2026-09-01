@@ -6,6 +6,7 @@ from fastapi import FastAPI, HTTPException, status
 from app.db import check_db_connection, init_db, list_statements, save_statement
 from app.errors import StatementConflictError
 from app.models import Statement
+from app.profile_router import router as profile_router
 
 logger = logging.getLogger(__name__)
 
@@ -17,6 +18,7 @@ async def lifespan(_: FastAPI):
 
 
 app = FastAPI(lifespan=lifespan)
+app.include_router(profile_router)
 
 
 @app.get("/")
