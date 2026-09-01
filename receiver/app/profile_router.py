@@ -29,7 +29,9 @@ async def put_agent_profile(
     request: Request,
     agent: str = Query(),
     profile_id: str = Query(alias="profileId", min_length=1),
-    content_type: str = Header(default="application/octet-stream", alias="Content-Type"),
+    content_type: str = Header(
+        default="application/octet-stream", alias="Content-Type"
+    ),
     if_match: str | None = Header(default=None, alias="If-Match"),
     if_none_match: str | None = Header(default=None, alias="If-None-Match"),
 ):
@@ -50,7 +52,9 @@ async def post_agent_profile(
     request: Request,
     agent: str = Query(),
     profile_id: str = Query(alias="profileId", min_length=1),
-    content_type: str = Header(default="application/octet-stream", alias="Content-Type"),
+    content_type: str = Header(
+        default="application/octet-stream", alias="Content-Type"
+    ),
     if_match: str | None = Header(default=None, alias="If-Match"),
     if_none_match: str | None = Header(default=None, alias="If-None-Match"),
 ):
@@ -83,7 +87,9 @@ def delete_agent_profile(
     if_none_match: str | None = Header(default=None, alias="If-None-Match"),
 ):
     if if_none_match is not None:
-        raise HTTPException(status_code=400, detail="DELETE supports If-Match, not If-None-Match")
+        raise HTTPException(
+            status_code=400, detail="DELETE supports If-Match, not If-None-Match"
+        )
     return _delete("agent", _agent_owner_key(agent), profile_id, if_match)
 
 
@@ -92,7 +98,9 @@ async def put_activity_profile(
     request: Request,
     activity_id: str = Query(alias="activityId"),
     profile_id: str = Query(alias="profileId", min_length=1),
-    content_type: str = Header(default="application/octet-stream", alias="Content-Type"),
+    content_type: str = Header(
+        default="application/octet-stream", alias="Content-Type"
+    ),
     if_match: str | None = Header(default=None, alias="If-Match"),
     if_none_match: str | None = Header(default=None, alias="If-None-Match"),
 ):
@@ -113,7 +121,9 @@ async def post_activity_profile(
     request: Request,
     activity_id: str = Query(alias="activityId"),
     profile_id: str = Query(alias="profileId", min_length=1),
-    content_type: str = Header(default="application/octet-stream", alias="Content-Type"),
+    content_type: str = Header(
+        default="application/octet-stream", alias="Content-Type"
+    ),
     if_match: str | None = Header(default=None, alias="If-Match"),
     if_none_match: str | None = Header(default=None, alias="If-None-Match"),
 ):
@@ -146,7 +156,9 @@ def delete_activity_profile(
     if_none_match: str | None = Header(default=None, alias="If-None-Match"),
 ):
     if if_none_match is not None:
-        raise HTTPException(status_code=400, detail="DELETE supports If-Match, not If-None-Match")
+        raise HTTPException(
+            status_code=400, detail="DELETE supports If-Match, not If-None-Match"
+        )
     return _delete("activity", _activity_owner_key(activity_id), profile_id, if_match)
 
 
@@ -206,7 +218,9 @@ def _get(
 ):
     if profile_id is not None:
         if since is not None:
-            raise HTTPException(status_code=400, detail="since is valid only when listing profile ids")
+            raise HTTPException(
+                status_code=400, detail="since is valid only when listing profile ids"
+            )
         try:
             document = get_profile_document(resource_type, owner_key, profile_id)
         except Exception as exc:

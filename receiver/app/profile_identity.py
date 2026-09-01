@@ -31,7 +31,9 @@ def canonicalize_agent(agent_parameter: str) -> AgentIdentity:
     ifi_names = ("mbox", "mbox_sha1sum", "openid", "account")
     present_ifis = [name for name in ifi_names if name in agent]
     if len(present_ifis) != 1:
-        raise InvalidProfileOwner("agent must contain exactly one inverse functional identifier")
+        raise InvalidProfileOwner(
+            "agent must contain exactly one inverse functional identifier"
+        )
 
     ifi_name = present_ifis[0]
     if ifi_name != "mbox":

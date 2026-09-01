@@ -163,7 +163,9 @@ def delete_profile_document(
             if current is None:
                 raise ProfileNotFound("profile document not found")
             if if_match is not None and not _etag_matches(if_match, current.etag):
-                raise ProfilePreconditionFailed("If-Match does not match the current ETag")
+                raise ProfilePreconditionFailed(
+                    "If-Match does not match the current ETag"
+                )
 
             cur.execute(
                 """
@@ -174,7 +176,9 @@ def delete_profile_document(
             )
 
 
-def _lock_document_key(cur, resource_type: str, owner_key: str, profile_id: str) -> None:
+def _lock_document_key(
+    cur, resource_type: str, owner_key: str, profile_id: str
+) -> None:
     lock_key = "\x1f".join((resource_type, owner_key, profile_id))
     cur.execute("SELECT pg_advisory_xact_lock(hashtextextended(%s, 0))", (lock_key,))
 
@@ -192,7 +196,9 @@ def _select_document(cur, resource_type: str, owner_key: str, profile_id: str):
     row = cur.fetchone()
     if row is None:
         return None
-    return ProfileDocument(content=bytes(row[0]), content_type=row[1], etag=row[2], updated_at=row[3])
+    return ProfileDocument(
+        content=bytes(row[0]), content_type=row[1], etag=row[2], updated_at=row[3]
+    )
 
 
 def _upsert_document(
@@ -222,7 +228,9 @@ def _upsert_document(
 
 def _validate_mutation_headers(if_match: str | None, if_none_match: str | None) -> None:
     if if_match is not None and if_none_match is not None:
-        raise InvalidProfileRequest("If-Match and If-None-Match cannot be used together")
+        raise InvalidProfileRequest(
+            "If-Match and If-None-Match cannot be used together"
+        )
     if if_none_match is not None and if_none_match.strip() != "*":
         raise InvalidProfileRequest('this xAPI subset supports only If-None-Match: "*"')
 
@@ -272,7 +280,9 @@ def _validate_json_document(content: bytes, content_type: str) -> None:
     try:
         json.loads(content)
     except (json.JSONDecodeError, UnicodeDecodeError) as exc:
-        raise InvalidProfileRequest("application/json document is not valid JSON") from exc
+        raise InvalidProfileRequest(
+            "application/json document is not valid JSON"
+        ) from exc
 
 
 def _load_json_object(content: bytes, label: str) -> dict:

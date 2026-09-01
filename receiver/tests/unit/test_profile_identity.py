@@ -20,8 +20,12 @@ def test_canonicalizes_only_mbox_domain_case():
 
 
 def test_name_does_not_affect_agent_identity():
-    first = canonicalize_agent(json.dumps({"name": "First", "mbox": "mailto:a@example.com"}))
-    second = canonicalize_agent(json.dumps({"name": "Second", "mbox": "mailto:a@example.com"}))
+    first = canonicalize_agent(
+        json.dumps({"name": "First", "mbox": "mailto:a@example.com"})
+    )
+    second = canonicalize_agent(
+        json.dumps({"name": "Second", "mbox": "mailto:a@example.com"})
+    )
 
     assert first == second
 

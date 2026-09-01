@@ -116,7 +116,10 @@ def test_json_post_merges_only_top_level_properties(client, path, params):
         path,
         params=params,
         content=json.dumps({"locale": "ko-KR", "nested": {"new": True}}),
-        headers={"Content-Type": "application/json", "If-Match": current.headers["etag"]},
+        headers={
+            "Content-Type": "application/json",
+            "If-Match": current.headers["etag"],
+        },
     )
     merged = client.get(path, params=params)
 
@@ -171,7 +174,10 @@ def test_put_requires_precondition_and_rejects_stale_etag(client):
         "/agents/profile",
         params=params,
         content=b'{"theme":"light"}',
-        headers={"Content-Type": "application/json", "If-Match": current.headers["etag"]},
+        headers={
+            "Content-Type": "application/json",
+            "If-Match": current.headers["etag"],
+        },
     )
 
     assert no_header.status_code == 409
@@ -206,7 +212,9 @@ def test_delete_with_if_match(path, params, client):
     current = client.get(path, params=params)
 
     stale = client.delete(path, params=params, headers={"If-Match": '"stale"'})
-    deleted = client.delete(path, params=params, headers={"If-Match": current.headers["etag"]})
+    deleted = client.delete(
+        path, params=params, headers={"If-Match": current.headers["etag"]}
+    )
 
     assert stale.status_code == 412
     assert deleted.status_code == 204
