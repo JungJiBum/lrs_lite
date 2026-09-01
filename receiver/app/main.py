@@ -3,6 +3,7 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, HTTPException, status
 
+from app.analytics_router import router as analytics_router
 from app.db import check_db_connection, init_db, list_statements, save_statement
 from app.errors import StatementConflictError
 from app.models import Statement
@@ -19,6 +20,7 @@ async def lifespan(_: FastAPI):
 
 app = FastAPI(lifespan=lifespan)
 app.include_router(profile_router)
+app.include_router(analytics_router)
 
 
 @app.get("/")
